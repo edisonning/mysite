@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘</title>
+    <style>
+        body {
+            padding: 24px;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+        
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        
+        .welcome-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .stat-icon.users { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.orders { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.revenue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .stat-icon.growth { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 4px 0 0 0;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .stat-change.positive {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .stat-change.negative {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .chart-card, .activity-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 16px;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        
+        .activity-icon.login { background-color: #e3f2fd; color: #1976d2; }
+        .activity-icon.update { background-color: #f3e5f5; color: #7b1fa2; }
+        .activity-icon.create { background-color: #e8f5e8; color: #388e3c; }
+        .activity-icon.delete { background-color: #ffebee; color: #d32f2f; }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-size: 14px;
+            color: #333;
+            margin: 0 0 4px 0;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin: 0;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .action-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        
+        .action-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+        
+        .action-icon {
+            font-size: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            body {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="welcome-section">
+            <h1 class="welcome-title">欢迎回来，管理员！</h1>
+            <p class="welcome-subtitle">今天是 <span id="currentDate"></span>，系统运行正常</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon users">👥</div>
+                    <span class="stat-change positive">+12%</span>
+                </div>
+                <h3 class="stat-value">1,234</h3>
+                <p class="stat-label">总用户数</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon orders">📦</div>
+                    <span class="stat-change positive">+8%</span>
+                </div>
+                <h3 class="stat-value">856</h3>
+                <p class="stat-label">本月订单</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon revenue">💰</div>
+                    <span class="stat-change positive">+15%</span>
+                </div>
+                <h3 class="stat-value">¥45,678</h3>
+                <p class="stat-label">本月收入</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon growth">📈</div>
+                    <span class="stat-change negative">-2%</span>
+                </div>
+                <h3 class="stat-value">92.5%</h3>
+                <p class="stat-label">系统性能</p>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="chart-card">
+                <h2 class="card-title">📊 数据趋势</h2>
+                <div class="chart-placeholder">
+                    📈 图表区域 - 可集成 Chart.js 或其他图表库
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <h2 class="card-title">🔔 最近活动</h2>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <div class="activity-icon login">🔑</div>
+                        <div class="activity-content">
+                            <p class="activity-text">用户 admin 登录系统</p>
+                            <p class="activity-time">2分钟前</p>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon create">➕</div>
+                        <div class="activity-content">
+                            <p class="activity-text">创建了新用户 Alice</p>
+                            <p class="activity-time">15分钟前</p>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon update">✏️</div>
+                        <div class="activity-content">
+                            <p class="activity-text">更新了系统设置</p>
+                            <p class="activity-time">1小时前</p>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon delete">🗑️</div>
+                        <div class="activity-content">
+                            <p class="activity-text">删除了过期数据</p>
+                            <p class="activity-time">2小时前</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <h2 class="card-title">⚡ 快速操作</h2>
+            <div class="quick-actions">
+                <a href="#" class="action-btn">
+                    <span class="action-icon">👤</span>
+                    <span>添加用户</span>
+                </a>
+                <a href="#" class="action-btn">
+                    <span class="action-icon">📝</span>
+                    <span>创建内容</span>
+                </a>
+                <a href="#" class="action-btn">
+                    <span class="action-icon">📊</span>
+                    <span>查看报表</span>
+                </a>
+                <a href="#" class="action-btn">
+                    <span class="action-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 显示当前日期
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
+        
+        // 模拟实时数据更新
+        function updateStats() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                const currentValue = parseInt(stat.textContent.replace(/[^0-9]/g, ''));
+                const change = Math.floor(Math.random() * 10) - 5;
+                const newValue = Math.max(0, currentValue + change);
+                
+                if (stat.textContent.includes('¥')) {
+                    stat.textContent = `¥${newValue.toLocaleString()}`;
+                } else if (stat.textContent.includes('%')) {
+                    stat.textContent = `${newValue}%`;
+                } else {
+                    stat.textContent = newValue.toLocaleString();
+                }
+            });
+        }
+        
+        // 每30秒更新一次数据（可选）
+        // setInterval(updateStats, 30000);
+    </script>
+</body>
+</html>

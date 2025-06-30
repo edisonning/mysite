@@ -1,1 +1,394 @@
-test
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理系统框架</title>
+    <style>
+        /* CSS Reset and Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Arial, sans-serif;
+            background-color: #f5f7fa;
+            overflow: hidden;
+        }
+
+        /* --- Layout Structure --- */
+        .admin-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            height: 64px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            color: #fff;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .top-nav .logo {
+            font-size: 22px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+        }
+
+        .top-nav .logo::before {
+            content: '⚡';
+            margin-right: 8px;
+            font-size: 24px;
+        }
+
+        .top-nav .nav-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .breadcrumb {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        .top-nav .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Content Area (Sidebar + Iframe) */
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100% - 64px);
+            background-color: #f5f7fa;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            width: 260px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            flex-shrink: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            color: #ecf0f1;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .sidebar-nav ul {
+            list-style-type: none;
+            padding: 16px 0;
+        }
+
+        .sidebar-nav li {
+            margin: 4px 12px;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            color: #bdc3c7;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar-nav li a::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: transparent;
+            margin-right: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav li a:hover {
+            background: rgba(255,255,255,0.1);
+            color: #ecf0f1;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav li a:hover::before {
+            background: #1abc9c;
+        }
+
+        /* Active menu item style */
+        .sidebar-nav li a.active {
+            background: linear-gradient(135deg, #1abc9c, #16a085);
+            color: #ffffff;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
+        }
+
+        .sidebar-nav li a.active::before {
+            background: #ffffff;
+        }
+
+        /* Content Frame Area */
+        .content-frame {
+            flex-grow: 1;
+            padding: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        #content-iframe {
+            width: 100%;
+            flex: 1;
+            border: none;
+            background-color: #ffffff;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar-nav {
+                width: 200px;
+            }
+            
+            .content-frame {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <header class="top-nav">
+            <div class="logo">后台管理系统</div>
+            <div class="nav-center">
+                <div class="breadcrumb" id="breadcrumb">首页 / 仪表盘</div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">A</div>
+                <span class="user-name">管理员</span>
+                <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <aside class="sidebar-nav">
+                <div class="sidebar-header">
+                    <h3>导航菜单</h3>
+                </div>
+                <ul>
+                    <li>
+                        <a href="javascript:void(0);" class="nav-link active" data-src="dashboard.html" data-title="仪表盘">仪表盘</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="nav-link" data-src="users.html" data-title="用户管理">用户管理</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0);" class="nav-link" data-src="settings.html" data-title="系统设置">系统设置</a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="content-frame">
+                <div class="content-header">
+                    <h1 class="content-title" id="content-title">仪表盘</h1>
+                </div>
+                <div class="loading" id="loading">加载中...</div>
+                <iframe id="content-iframe" name="content-iframe" src="dashboard.html"></iframe>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+            const iframe = document.getElementById('content-iframe');
+            const contentTitle = document.getElementById('content-title');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const loading = document.getElementById('loading');
+
+            // 菜单点击事件监听
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+
+                    // 显示加载动画
+                    showLoading();
+
+                    // 获取要加载的页面URL和标题
+                    const pageUrl = this.getAttribute('data-src');
+                    const pageTitle = this.getAttribute('data-title');
+                    
+                    if (pageUrl) {
+                        // 更新页面标题和面包屑
+                        if (pageTitle) {
+                            contentTitle.textContent = pageTitle;
+                            breadcrumb.textContent = `首页 / ${pageTitle}`;
+                            document.title = `${pageTitle} - 后台管理系统`;
+                        }
+
+                        // 加载页面
+                        iframe.src = pageUrl;
+                    }
+
+                    // 更新菜单的激活状态
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // iframe 加载完成事件
+            iframe.addEventListener('load', function() {
+                hideLoading();
+            });
+
+            // 显示加载动画
+            function showLoading() {
+                loading.style.display = 'block';
+                iframe.style.opacity = '0.5';
+            }
+
+            // 隐藏加载动画
+            function hideLoading() {
+                loading.style.display = 'none';
+                iframe.style.opacity = '1';
+            }
+        });
+
+        // 退出登录功能
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                alert('已退出登录');
+                // 这里可以添加实际的退出逻辑
+                // window.location.href = 'login.html';
+            }
+        }
+
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(event) {
+            // Alt + 数字键快速切换菜单
+            if (event.altKey) {
+                const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+                switch(event.key) {
+                    case '1':
+                        if (navLinks[0]) navLinks[0].click();
+                        break;
+                    case '2':
+                        if (navLinks[1]) navLinks[1].click();
+                        break;
+                    case '3':
+                        if (navLinks[2]) navLinks[2].click();
+                        break;
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

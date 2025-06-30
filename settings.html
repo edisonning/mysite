@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置</title>
+    <style>
+        body {
+            padding: 24px;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .settings-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 8px 0;
+        }
+        
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+        
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .settings-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .card-title {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: #ced4da;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            body {
+                padding: 16px;
+            }
+            
+            .settings-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <div class="page-header">
+            <h1 class="page-title">系统设置</h1>
+            <p class="page-subtitle">管理系统的基本配置和偏好设置</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            ✅ 设置已成功保存！
+        </div>
+        
+        <div class="settings-grid">
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🏢</div>
+                    <h2 class="card-title">基本设置</h2>
+                </div>
+                <div class="form-group">
+                    <label for="siteName">网站名称</label>
+                    <input type="text" id="siteName" value="后台管理系统" placeholder="请输入网站名称">
+                </div>
+                <div class="form-group">
+                    <label for="siteUrl">网站地址</label>
+                    <input type="url" id="siteUrl" value="https://example.com" placeholder="请输入网站地址">
+                </div>
+                <div class="form-group">
+                    <label for="adminEmail">管理员邮箱</label>
+                    <input type="email" id="adminEmail" value="admin@example.com" placeholder="请输入管理员邮箱">
+                </div>
+            </div>
+            
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🎨</div>
+                    <h2 class="card-title">界面设置</h2>
+                </div>
+                <div class="form-group">
+                    <label for="theme">主题风格</label>
+                    <select id="theme">
+                        <option value="default">默认主题</option>
+                        <option value="dark">深色主题</option>
+                        <option value="light">浅色主题</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="language">系统语言</label>
+                    <select id="language">
+                        <option value="zh-CN">简体中文</option>
+                        <option value="en-US">English</option>
+                        <option value="ja-JP">日本語</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pageSize">每页显示条数</label>
+                    <select id="pageSize">
+                        <option value="10">10条/页</option>
+                        <option value="20" selected>20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">🔒</div>
+                    <h2 class="card-title">安全设置</h2>
+                </div>
+                <div class="form-group">
+                    <label for="sessionTimeout">会话超时时间（分钟）</label>
+                    <input type="number" id="sessionTimeout" value="30" min="5" max="1440" placeholder="5-1440分钟">
+                </div>
+                <div class="form-group">
+                    <label for="maxLoginAttempts">最大登录尝试次数</label>
+                    <input type="number" id="maxLoginAttempts" value="5" min="1" max="10" placeholder="1-10次">
+                </div>
+                <div class="form-group">
+                    <label for="passwordPolicy">密码策略</label>
+                    <select id="passwordPolicy">
+                        <option value="simple">简单（6位以上）</option>
+                        <option value="medium" selected>中等（8位+数字+字母）</option>
+                        <option value="strong">强（8位+数字+字母+特殊字符）</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-card">
+                <div class="card-header">
+                    <div class="card-icon">📧</div>
+                    <h2 class="card-title">通知设置</h2>
+                </div>
+                <div class="form-group">
+                    <label for="smtpServer">SMTP服务器</label>
+                    <input type="text" id="smtpServer" value="smtp.example.com" placeholder="请输入SMTP服务器地址">
+                </div>
+                <div class="form-group">
+                    <label for="smtpPort">SMTP端口</label>
+                    <input type="number" id="smtpPort" value="587" placeholder="请输入端口号">
+                </div>
+                <div class="form-group">
+                    <label for="emailNotification">邮件通知</label>
+                    <select id="emailNotification">
+                        <option value="enabled" selected>启用</option>
+                        <option value="disabled">禁用</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button class="btn btn-secondary" onclick="resetSettings()">重置</button>
+            <button class="btn btn-primary" onclick="saveSettings()">💾 保存设置</button>
+        </div>
+    </div>
+    
+    <script>
+        function saveSettings() {
+            // 显示成功消息
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            // 这里可以添加实际的保存逻辑
+            console.log('设置已保存');
+        }
+        
+        function resetSettings() {
+            if (confirm('确定要重置所有设置为默认值吗？')) {
+                // 重置表单值
+                document.getElementById('siteName').value = '后台管理系统';
+                document.getElementById('siteUrl').value = 'https://example.com';
+                document.getElementById('adminEmail').value = 'admin@example.com';
+                document.getElementById('theme').value = 'default';
+                document.getElementById('language').value = 'zh-CN';
+                document.getElementById('pageSize').value = '20';
+                document.getElementById('sessionTimeout').value = '30';
+                document.getElementById('maxLoginAttempts').value = '5';
+                document.getElementById('passwordPolicy').value = 'medium';
+                document.getElementById('smtpServer').value = 'smtp.example.com';
+                document.getElementById('smtpPort').value = '587';
+                document.getElementById('emailNotification').value = 'enabled';
+                
+                alert('设置已重置为默认值');
+            }
+        }
+    </script>
+</body>
+</html>
