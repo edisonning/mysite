@@ -3,392 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理系统框架</title>
+    <title>驾驶员培训系统 V6.0 - 新功能上线！</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        /* CSS Reset and Basic Styles */
-        * {
-            box-sizing: border-box;
+        /* 1. 全局样式 */
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Roboto, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
 
-        body, html {
-            height: 100%;
-            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Arial, sans-serif;
-            background-color: #f5f7fa;
-            overflow: hidden;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        /* --- Layout Structure --- */
-        .admin-layout {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* Top Navigation Bar */
-        .top-nav {
-            height: 64px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            color: #fff;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1000;
-        }
-
-        .top-nav .logo {
-            font-size: 22px;
-            font-weight: 600;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-        }
-
-        .top-nav .logo::before {
-            content: '⚡';
-            margin-right: 8px;
-            font-size: 24px;
-        }
-
-        .top-nav .nav-center {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .breadcrumb {
-            color: rgba(255,255,255,0.9);
-            font-size: 14px;
-        }
-
-        .top-nav .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Main Content Area (Sidebar + Iframe) */
-        .main-container {
-            display: flex;
-            flex-grow: 1;
-            height: calc(100% - 64px);
-            background-color: #f5f7fa;
-        }
-
-        /* Sidebar Navigation */
-        .sidebar-nav {
-            width: 260px;
-            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-            color: #ecf0f1;
-            flex-shrink: 0;
-            overflow-y: auto;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 100;
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        /* 2. 头部样式 */
+        .header {
             text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #e0e6ed;
+            margin-bottom: 40px;
         }
 
-        .sidebar-header h3 {
-            color: #ecf0f1;
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .sidebar-nav ul {
-            list-style-type: none;
-            padding: 16px 0;
-        }
-
-        .sidebar-nav li {
-            margin: 4px 12px;
-        }
-
-        .sidebar-nav li a {
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
-            color: #bdc3c7;
-            text-decoration: none;
-            font-size: 14px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .sidebar-nav li a::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: transparent;
-            margin-right: 12px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar-nav li a:hover {
-            background: rgba(255,255,255,0.1);
-            color: #ecf0f1;
-            transform: translateX(4px);
-        }
-
-        .sidebar-nav li a:hover::before {
-            background: #1abc9c;
-        }
-
-        /* Active menu item style */
-        .sidebar-nav li a.active {
-            background: linear-gradient(135deg, #1abc9c, #16a085);
-            color: #ffffff;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3);
-        }
-
-        .sidebar-nav li a.active::before {
-            background: #ffffff;
-        }
-
-        /* Content Frame Area */
-        .content-frame {
-            flex-grow: 1;
-            padding: 24px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content-header {
-            background: white;
-            padding: 16px 24px;
-            border-radius: 8px 8px 0 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .content-title {
-            font-size: 18px;
-            font-weight: 600;
+        .header h1 {
+            font-size: 2.5rem;
             color: #2c3e50;
             margin: 0;
         }
 
-        #content-iframe {
-            width: 100%;
-            flex: 1;
-            border: none;
-            background-color: #ffffff;
-            border-radius: 0 0 8px 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: opacity 0.3s ease;
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-top: 10px;
         }
-
-        /* Loading Animation */
-        .loading {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #667eea;
-            font-size: 14px;
-        }
-
-        .loading::after {
-            content: '';
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        .header .release-date {
             display: inline-block;
-            margin-left: 8px;
+            background-color: #3498db;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-top: 20px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* 3. 主内容区域 & 卡片样式 */
+        .updates-section {
+            margin-bottom: 50px;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar-nav {
-                width: 200px;
-            }
-            
-            .content-frame {
-                padding: 16px;
-            }
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 2rem;
+            color: #34495e;
+            margin-bottom: 30px;
         }
+        
+        .section-title i {
+            margin-right: 15px;
+            color: #fff;
+            background-color: #34495e;
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .update-card {
+            background-color: #ffffff;
+            border-left: 5px solid; /* 每个卡片的左侧彩色边框 */
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .update-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-header .icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #333;
+        }
+        
+        .card-body p {
+            margin: 0;
+            line-height: 1.7;
+            color: #555;
+            padding-left: 55px; /* 对齐标题 */
+        }
+        
+        .card-body ul {
+            padding-left: 75px; /* 对齐并缩进 */
+            margin-top: 10px;
+            color: #555;
+        }
+        
+        .card-body li {
+            margin-bottom: 8px;
+        }
+
+
+        /* 4. 为不同角色和功能设置不同颜色和图标 */
+
+        /* 教练: 蓝色系 */
+        .coach-section .section-title i { background-color: #3498db; }
+        .coach-section .update-card { border-left-color: #3498db; }
+        .coach-section .card-header .icon { color: #3498db; }
+        
+        /* 学员: 绿色系 */
+        .student-section .section-title i { background-color: #2ecc71; }
+        .student-section .update-card { border-left-color: #2ecc71; }
+        .student-section .card-header .icon { color: #2ecc71; }
+        
+        /* 5. 页脚 */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="admin-layout">
-        <header class="top-nav">
-            <div class="logo">后台管理系统</div>
-            <div class="nav-center">
-                <div class="breadcrumb" id="breadcrumb">首页 / 仪表盘</div>
-            </div>
-            <div class="user-info">
-                <div class="user-avatar">A</div>
-                <span class="user-name">管理员</span>
-                <button class="logout-btn" onclick="logout()">退出</button>
-            </div>
+    <div class="container">
+        <header class="header">
+            <h1>驾驶员培训系统 V6.0</h1>
+            <p class="subtitle">新功能上线，让教学和学习更智能、更便捷！</p>
+            <div class="release-date">发布于 2025年6月27日</div>
         </header>
 
-        <div class="main-container">
-            <aside class="sidebar-nav">
-                <div class="sidebar-header">
-                    <h3>导航菜单</h3>
+        <main>
+            <section class="updates-section coach-section">
+                <h2 class="section-title"><i class="fas fa-chalkboard-teacher"></i>教练端更新</h2>
+                
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-clipboard-check"></i></span>
+                        <h3>签到规则更智能，操作更规范</h3>
+                    </div>
+                    <div class="card-body">
+                       <p>为确保培训记录的准确性和教学的合规性，我们新增了以下签到校验规则：</p>
+                        <ul>
+                            <li><b>防止重复培训：</b>当您有正在进行的培训时，系统将不允许您为新的培训签到。</li>
+                            <li><b>保障教学安全：</b>根据相关规定，实车教学签到增加了年龄校验（需小于60周岁）。</li>
+                            <li><b>确保教学质量：</b>未经后台审核通过的教练将无法进行课堂教学签到。</li>
+                        </ul>
+                    </div>
                 </div>
-                <ul>
-                    <li>
-                        <a href="javascript:void(0);" class="nav-link active" data-src="dashboard.html" data-title="仪表盘">仪表盘</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" class="nav-link" data-src="users.html" data-title="用户管理">用户管理</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0);" class="nav-link" data-src="settings.html" data-title="系统设置">系统设置</a>
-                    </li>
-                </ul>
-            </aside>
 
-            <main class="content-frame">
-                <div class="content-header">
-                    <h1 class="content-title" id="content-title">仪表盘</h1>
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-book-reader"></i></span>
+                        <h3>新增学员学时查询功能</h3>
+                    </div>
+                     <div class="card-body">
+                       <p>现在您可以方便地查询名下任意学员的各科目总学时记录，全面掌握学员的整体学习进度。</p>
+                    </div>
                 </div>
-                <div class="loading" id="loading">加载中...</div>
-                <iframe id="content-iframe" name="content-iframe" src="dashboard.html"></iframe>
-            </main>
-        </div>
+
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-user-clock"></i></span>
+                        <h3>新增当日培训时长查询功能</h3>
+                    </div>
+                    <div class="card-body">
+                       <p>您可以实时查询学员在当天完成的各项培训（包括实车、模拟、课堂、远程）的时长总和，便于您动态了解学员的训练强度。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="updates-section student-section">
+                <h2 class="section-title"><i class="fas fa-user-graduate"></i>学员端更新</h2>
+
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-tasks"></i></span>
+                        <h3>优化签到规则，培训流程更清晰</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>为了让您的培训过程更加规范，新的签到规则如下：</p>
+                        <ul>
+                            <li><b>避免记录冲突：</b>当您有正在进行的培训时，将无法开始新的签到。</li>
+                            <li><b>规范学习时间：</b>模拟、课堂及远程培训需在规定的时间段内签到。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <h3>新增“强制签退”功能</h3>
+                    </div>
+                     <div class="card-body">
+                       <p>遇到忘记签退或设备异常？现在您可以通过小程序“强制签退”功能，轻松结束正在进行的模拟、课堂或远程培训（实车培训除外），操作更灵活。</p>
+                    </div>
+                </div>
+
+                <div class="update-card">
+                    <div class="card-header">
+                        <span class="icon"><i class="fas fa-chart-line"></i></span>
+                        <h3>新增培训时长查询功能</h3>
+                    </div>
+                     <div class="card-body">
+                        <p>您可以随时查询自己当日的总培训时长和远程培训的累计有效时长，学习进度一目了然。</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>感谢您的支持！我们将持续努力，为您提供更优质的服务。</p>
+            <p>驾驶员培训系统团队</p>
+        </footer>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-            const iframe = document.getElementById('content-iframe');
-            const contentTitle = document.getElementById('content-title');
-            const breadcrumb = document.getElementById('breadcrumb');
-            const loading = document.getElementById('loading');
-
-            // 菜单点击事件监听
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-
-                    // 显示加载动画
-                    showLoading();
-
-                    // 获取要加载的页面URL和标题
-                    const pageUrl = this.getAttribute('data-src');
-                    const pageTitle = this.getAttribute('data-title');
-                    
-                    if (pageUrl) {
-                        // 更新页面标题和面包屑
-                        if (pageTitle) {
-                            contentTitle.textContent = pageTitle;
-                            breadcrumb.textContent = `首页 / ${pageTitle}`;
-                            document.title = `${pageTitle} - 后台管理系统`;
-                        }
-
-                        // 加载页面
-                        iframe.src = pageUrl;
-                    }
-
-                    // 更新菜单的激活状态
-                    navLinks.forEach(nav => nav.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-
-            // iframe 加载完成事件
-            iframe.addEventListener('load', function() {
-                hideLoading();
-            });
-
-            // 显示加载动画
-            function showLoading() {
-                loading.style.display = 'block';
-                iframe.style.opacity = '0.5';
-            }
-
-            // 隐藏加载动画
-            function hideLoading() {
-                loading.style.display = 'none';
-                iframe.style.opacity = '1';
-            }
-        });
-
-        // 退出登录功能
-        function logout() {
-            if (confirm('确定要退出登录吗？')) {
-                alert('已退出登录');
-                // 这里可以添加实际的退出逻辑
-                // window.location.href = 'login.html';
-            }
-        }
-
-        // 添加键盘快捷键支持
-        document.addEventListener('keydown', function(event) {
-            // Alt + 数字键快速切换菜单
-            if (event.altKey) {
-                const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-                switch(event.key) {
-                    case '1':
-                        if (navLinks[0]) navLinks[0].click();
-                        break;
-                    case '2':
-                        if (navLinks[1]) navLinks[1].click();
-                        break;
-                    case '3':
-                        if (navLinks[2]) navLinks[2].click();
-                        break;
-                }
-            }
-        });
-    </script>
 
 </body>
 </html>
