@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学员额度销售区域分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .chart-container:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        /* 色盲友好配色 */
+        :root {
+            --color-1: #4E79A7; /* 蓝色 */
+            --color-2: #F28E2B; /* 橙色 */
+            --color-3: #E15759; /* 红色 */
+            --color-4: #76B7B2; /* 蓝绿色 */
+            --color-5: #59A14F; /* 绿色 */
+            --color-6: #EDC948; /* 黄色 */
+            --color-7: #B07AA1; /* 紫色 */
+            --color-8: #FF9DA7; /* 粉红 */
+            --color-9: #9C755F; /* 棕色 */
+            --color-10: #BAB0AC; /* 灰色 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+
+         <!-- 标题和筛选区域 -->
+         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">销售数据分析（仅已支付订单）</h1>
+                <p class="text-gray-600 mt-2">部分金额已做四舍五入处理，若需查看精确数值，请参考原始数据明细</p>    
+            </div>
+            <div class="mt-4 md:mt-0 flex flex-wrap gap-4">
+                <div>
+                    <label for="timeRange" class="block text-sm font-medium text-gray-700 mb-1">时间范围</label>
+                    <select id="timeRange" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option>全部数据</option>
+                        <option>最近7天</option>
+                        <option selected>最近30天</option>
+                        <option>最近90天</option>
+                        <option>自定义</option>
+                    </select>
+                </div>
+                <button class="self-end bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+                    <i class="fas fa-sync-alt mr-2"></i>刷新数据
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI指标卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="card bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">总销售额</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-800">¥110,970</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-yen-sign text-lg"></i>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">
+                    共3731个学员额度
+                </p>
+            </div>
+            
+            <div class="card bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">订单数量</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-800">156</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-shopping-cart text-lg"></i>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">
+                    平均每单¥711.35
+                </p>
+            </div>
+            
+            <div class="card bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">支付方式</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-800">微信 78%</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-wallet text-lg"></i>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">
+                    支付宝占比22%
+                </p>
+            </div>
+        </div>
+
+        <!-- 主要图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 区域销售额分布 -->
+            <div class="chart-container p-6 lg:col-span-2">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">各区域销售额分布</h2>
+                <div class="h-80">
+                    <canvas id="regionSalesChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    大荔县和渭南市是销售额最高的两个区域，合计占比超过60%。
+                </p>
+            </div>
+            
+            <!-- 培训机构销售额TOP10 -->
+            <div class="chart-container p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">培训机构销售额TOP10</h2>
+                <div class="h-80">
+                    <canvas id="topSchoolsChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    大荔县金龙机动车驾驶员培训学校销售额最高，达¥15,000。
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 支付方式占比 -->
+            <div class="chart-container p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">支付方式占比</h2>
+                <div class="h-80">
+                    <div id="paymentMethodChart" style="width:100%;height:100%;"></div>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    微信支付是主要支付方式，占比78%，支付宝占比22%。
+                </p>
+            </div>
+            
+            <!-- 月度销售趋势 -->
+            <div class="chart-container p-6 lg:col-span-2">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">月度销售趋势</h2>
+                <div>
+                    <label for="yearSelect" >选择年份</label>
+                    <select id="yearSelect" >
+                        <option value="2025" selected>2025年</option>
+                        <option value="2026">2026年</option>
+                        <option value="2027">2027年</option>
+                    </select>
+                </div>
+                <div class="h-80">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    本年度4月份销售额最高，5月份较上个月有所下降。
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- 订单金额分布 -->
+            <div class="chart-container p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">订单金额分布</h2>
+                <div class="h-80">
+                    <div id="orderAmountChart" style="width:100%;height:100%;"></div>
+                </div>
+               
+            </div>
+            
+            <!-- 区域销售对比 -->
+            <div class="chart-container p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">区域销售对比</h2>
+                <div class="h-80">
+                    <canvas id="regionComparisonChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-3">
+                    大荔县在订单数量和总金额上都领先其他区域。
+                </p>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="chart-container p-6 mb-8">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">TOP 10 培训机构销售数据</h2>
+            <button id="exportTableBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors">
+                <i class="fas fa-file-export mr-2"></i>导出数据
+            </button>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">培训机构</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">区域</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">订单数</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学员额度</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">总金额</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县金龙机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">350</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥10,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南经开华秦驾驶员培训有限公司</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南市</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县华秦机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县金龙机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">350</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥10,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南经开华秦驾驶员培训有限公司</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南市</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">6</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县华秦机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">7</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县金龙机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">350</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥10,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">8</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南经开华秦驾驶员培训有限公司</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">渭南市</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">9</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县华秦机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥4,500</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县金龙机动车驾驶员培训学校</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">大荔县</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">350</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">¥10,500</td>
+                        </tr>
+                        
+                        <!-- 更多行数据... -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-sm text-gray-600 mt-3">
+                注：表格仅显示部分数据，完整数据可导出查看。
+            </p>
+        </div>
+    <script>
+        // 数据处理函数 - 从Excel数据中提取区域信息
+        function extractRegion(schoolName) {
+            if (schoolName.includes('大荔县')) return '大荔县';
+            if (schoolName.includes('渭南市') || schoolName.includes('渭南')) return '渭南市';
+            if (schoolName.includes('华阴市')) return '华阴市';
+            if (schoolName.includes('白水县')) return '白水县';
+            if (schoolName.includes('合阳县')) return '合阳县';
+            if (schoolName.includes('澄城县')) return '澄城县';
+            if (schoolName.includes('富平县')) return '富平县';
+            return '其他';
+        }
+
+        // 模拟数据处理结果 - 实际应用中应从Excel解析真实数据
+        const regionSalesData = {
+            labels: ['大荔县', '渭南市', '华阴市', '白水县', '合阳县', '澄城县', '富平县'],
+            datasets: [{
+                label: '销售额(元)',
+                data: [45000, 32000, 12000, 8000, 7000, 3000, 2500, 1000],
+                backgroundColor: [
+                    'rgba(78, 121, 167, 0.7)',
+                    'rgba(242, 142, 43, 0.7)',
+                    'rgba(225, 87, 89, 0.7)',
+                    'rgba(118, 183, 178, 0.7)',
+                    'rgba(89, 161, 79, 0.7)',
+                    'rgba(237, 201, 72, 0.7)',
+                    'rgba(176, 122, 161, 0.7)'
+                   
+                ],
+                borderColor: [
+                    'rgba(78, 121, 167, 1)',
+                    'rgba(242, 142, 43, 1)',
+                    'rgba(225, 87, 89, 1)',
+                    'rgba(118, 183, 178, 1)',
+                    'rgba(89, 161, 79, 1)',
+                    'rgba(237, 201, 72, 1)',
+                    'rgba(176, 122, 161, 1)'
+                   
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const topSchoolsData = {
+            labels: [
+                '大荔县金龙', 
+                '渭南经开华秦', 
+                '大荔县华秦', 
+                '华阴市东兴', 
+                '白水县红旗',
+                '合阳县安源',
+                '大荔县亿通',
+                '渭南市光明',
+                '华阴市西岳',
+                '合阳县东风'
+            ],
+            datasets: [{
+                label: '销售额(元)',
+                data: [10500, 4500, 4500, 4200, 3900, 3600, 3300, 3000, 2700, 2400],
+                backgroundColor: 'rgba(78, 121, 167, 0.7)',
+                borderColor: 'rgba(78, 121, 167, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        const monthlyTrendData = {
+            labels: ['3月', '4月', '5月'],
+            datasets: [{
+                label: '销售额(元)',
+                data: [35000, 50000, 25970],
+                backgroundColor: 'rgba(78, 121, 167, 0.2)',
+                borderColor: 'rgba(78, 121, 167, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        };
+
+        const regionComparisonData = {
+            labels: ['大荔县', '渭南市', '华阴市', '白水县', '合阳县'],
+            datasets: [
+                {
+                    label: '订单数量',
+                    data: [45, 32, 18, 12, 10],
+                    backgroundColor: 'rgba(78, 121, 167, 0.7)',
+                    borderColor: 'rgba(78, 121, 167, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: '总金额(元)',
+                    data: [45, 32, 12, 8, 7],
+                    backgroundColor: 'rgba(242, 142, 43, 0.7)',
+                    borderColor: 'rgba(242, 142, 43, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 区域销售额柱状图
+            const regionSalesCtx = document.getElementById('regionSalesChart').getContext('2d');
+            new Chart(regionSalesCtx, {
+                type: 'bar',
+                data: regionSalesData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '销售额(元)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + '元';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 培训机构TOP10柱状图
+            const topSchoolsCtx = document.getElementById('topSchoolsChart').getContext('2d');
+            new Chart(topSchoolsCtx, {
+                type: 'bar',
+                data: topSchoolsData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '销售额(元)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.x.toLocaleString() + '元';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 月度趋势折线图
+            const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+            new Chart(monthlyTrendCtx, {
+                type: 'line',
+                data: monthlyTrendData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '销售额(元)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + '元';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 区域对比柱状图
+            const regionComparisonCtx = document.getElementById('regionComparisonChart').getContext('2d');
+            new Chart(regionComparisonCtx, {
+                type: 'bar',
+                data: regionComparisonData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label === '总金额(元)') {
+                                        return context.parsed.y + '元';
+                                    } else {
+                                        return context.parsed.y + '单';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 支付方式饼图 (使用ECharts)
+            const paymentMethodChart = echarts.init(document.getElementById('paymentMethodChart'));
+            paymentMethodChart.setOption({
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    data: ['微信支付', '支付宝']
+                },
+                series: [
+                    {
+                        name: '支付方式',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 78, name: '微信支付', itemStyle: { color: '#4E79A7' } },
+                            { value: 22, name: '支付宝', itemStyle: { color: '#F28E2B' } }
+                        ]
+                    }
+                ]
+            });
+
+            // 订单金额分布图 (使用ECharts)
+            const orderAmountChart = echarts.init(document.getElementById('orderAmountChart'));
+            orderAmountChart.setOption({
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    data: ['0~65元', '65~650元', '650元以上']
+                },
+                series: [
+                    {
+                        name: '订单金额',
+                        type: 'pie',
+                        radius: '70%',
+                        center: ['40%', '50%'],
+                        data: [
+                            { value: 15, name: '0~65元', itemStyle: { color: '#4E79A7' } },
+                            { value: 8, name: '65~650元', itemStyle: { color: '#F28E2B' } },
+                            { value: 5, name: '650元以上', itemStyle: { color: '#E15759' } }  
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            });
+
+            // 窗口大小变化时重新调整图表大小
+            window.addEventListener('resize', function() {
+                paymentMethodChart.resize();
+                orderAmountChart.resize();
+            });
+        });
+    </script>
+</body>
+</html>
